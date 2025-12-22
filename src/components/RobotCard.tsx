@@ -57,7 +57,7 @@ export function RobotCard({ robot }: RobotCardProps) {
   return (
     <>
       <div
-        className="relative aspect-[3/4] cursor-pointer select-none touch-none"
+        className="relative aspect-[3/4] cursor-pointer select-none touch-manipulation"
         style={{ perspective: "1000px" }}
         {...longPressHandlers}
       >
