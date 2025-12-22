@@ -42,6 +42,29 @@ const getPurposeColor = (purpose: string) => {
   return colors[purpose] || "bg-gray-500";
 };
 
+// Map purpose to hex colors for placeholder images
+const getPurposeHexColor = (purpose: string) => {
+  const colors: Record<string, string> = {
+    Delivery: "f59e0b",      // amber-500
+    Cleaning: "06b6d4",      // cyan-500
+    "Helping people": "f43f5e", // rose-500
+    "Helping animals": "10b981", // emerald-500
+    Exploration: "8b5cf6",   // violet-500
+    Entertainment: "d946ef", // fuchsia-500
+    Building: "64748b",      // slate-500
+    Fixing: "eab308",        // yellow-500
+  };
+  return colors[purpose] || "6b7280";
+};
+
+// Generate a placeholder image URL for a robot
+export const getPlaceholderImageUrl = (robot: Robot, size: number = 400) => {
+  const bgColor = getPurposeHexColor(robot.purpose);
+  const textColor = "ffffff";
+  const text = encodeURIComponent(robot.name.replace(/ /g, "+"));
+  return `https://placehold.co/${size}x${size}/${bgColor}/${textColor}/png?text=${text}`;
+};
+
 export function RobotCard({ robot }: RobotCardProps) {
   const [detailOpen, setDetailOpen] = useState(false);
   const { flippedRobots, toggleRobot } = useGameStore();
@@ -65,35 +88,46 @@ export function RobotCard({ robot }: RobotCardProps) {
           {/* Front of card */}
           <Card
             className={cn(
-              "flip-card-face absolute inset-0 flex flex-col overflow-hidden py-0 gap-0",
+              "flip-card-face absolute inset-0 flex flex-col overflow-hidden p-0 gap-0",
               "hover:ring-2 hover:ring-ring hover:ring-offset-2 hover:ring-offset-background",
               "transition-shadow"
             )}
           >
-            {/* Color accent bar */}
-            <div className={cn("h-2 w-full shrink-0", getPurposeColor(robot.purpose))} />
-            
-            {/* Content */}
-            <div className="flex flex-1 flex-col items-center justify-center gap-2 p-2">
-              {/* Icon */}
-              <div className={cn(
-                "flex h-12 w-12 items-center justify-center rounded-full text-white",
-                getPurposeColor(robot.purpose)
-              )}>
-                {getPurposeIcon(robot.purpose)}
-              </div>
-              
-              {/* Name */}
-              <h3 className="text-center text-xs font-semibold leading-tight px-1">
-                {robot.name}
-              </h3>
+            {/* Full-bleed background image */}
+            <div className="absolute inset-0">
+              <img
+                src={getPlaceholderImageUrl(robot, 400)}
+                alt={robot.name}
+                className="h-full w-full object-cover"
+                loading="lazy"
+              />
             </div>
-
-            {/* Purpose badge */}
-            <div className="p-2 pt-0 shrink-0">
-              <Badge variant="secondary" className="w-full justify-center text-[10px]">
-                {robot.purpose}
-              </Badge>
+            
+            {/* Glass overlay content */}
+            <div className="relative flex flex-1 flex-col">
+              {/* Top glass panel with icon and name */}
+              <div className="mt-auto backdrop-blur-md bg-white/70 dark:bg-black/60 p-3 border-t border-white/20">
+                <div className="flex items-center gap-2">
+                  {/* Icon */}
+                  <div className={cn(
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white shadow-lg",
+                    getPurposeColor(robot.purpose)
+                  )}>
+                    {getPurposeIcon(robot.purpose)}
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    {/* Name */}
+                    <h3 className="text-sm font-bold leading-tight text-foreground truncate">
+                      {robot.name}
+                    </h3>
+                    {/* Purpose badge inline */}
+                    <Badge variant="secondary" className="mt-1 text-[10px] bg-white/50 dark:bg-white/20">
+                      {robot.purpose}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
             </div>
           </Card>
 

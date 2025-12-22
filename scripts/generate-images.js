@@ -142,11 +142,11 @@ async function generateRobotImages() {
     console.log(`Generating images for: ${robot.name}…`);
     try {
       const response = await openai.images.generate({
-        model: 'gpt-image-1.5',
+        model: 'gpt-image-1',
         prompt,
         n: 3,
-        size: '1024x1024',
-        // You can tweak additional parameters such as output_format or quality
+        size: '1536x1024',  // Larger landscape format for full-bleed card images
+        quality: 'high',
       });
       // The data field contains an array of image objects. Each entry has a
       // `b64_json` property with the Base64‑encoded PNG data.

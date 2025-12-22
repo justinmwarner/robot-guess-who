@@ -2,13 +2,12 @@ import {
   Bot, Compass, Cpu, Hammer, Heart, MapPin, Navigation, PartyPopper, PawPrint, Radio, Sparkles, Truck, Wrench
 } from "lucide-react";
 import { Robot } from "../data/robots";
+import { getPlaceholderImageUrl } from "./RobotCard";
 import { Badge } from "./ui/badge";
 import { Card, CardContent } from "./ui/card";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
 
@@ -41,18 +40,34 @@ export function RobotDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-3 text-xl">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              {getPurposeIcon(robot.purpose)}
+      <DialogContent className="sm:max-w-2xl p-0 overflow-hidden">
+        {/* Visually hidden title for accessibility */}
+        <DialogTitle className="sr-only">{robot.name} Details</DialogTitle>
+        
+        {/* Large hero image */}
+        <div className="relative w-full aspect-[4/3] bg-muted">
+          <img
+            src={getPlaceholderImageUrl(robot, 800)}
+            alt={robot.name}
+            className="w-full h-full object-cover"
+          />
+          {/* Gradient overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          {/* Title overlay on image */}
+          <div className="absolute bottom-0 left-0 right-0 p-6">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-md text-white border border-white/30">
+                {getPurposeIcon(robot.purpose)}
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-white drop-shadow-lg">{robot.name}</h2>
+                <p className="text-white/80 text-sm">Robot Specifications</p>
+              </div>
             </div>
-            {robot.name}
-          </DialogTitle>
-          <DialogDescription>Robot Specifications</DialogDescription>
-        </DialogHeader>
+          </div>
+        </div>
 
-        <div className="grid gap-3">
+        <div className="p-6 pt-4 grid gap-3">
           <Card className="py-3">
             <CardContent className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">

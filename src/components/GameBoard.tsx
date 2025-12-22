@@ -1,25 +1,44 @@
-import { Bot, HelpCircle, RotateCcw, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Bot, Eye, EyeOff, HelpCircle, RotateCcw, X } from "lucide-react";
+import { useMemo, useState } from "react";
 import { robots } from "../data/robots";
+import { cn } from "../lib/utils";
 import { useGameStore } from "../store/gameStore";
-import { ResetDialog } from "./ResetDialog";
 import { RobotCard } from "./RobotCard";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 
 export function GameBoard() {
-  const { hasExistingGame, hasSeenResetPrompt, resetGame, flippedRobots } = useGameStore();
-  const [showResetDialog, setShowResetDialog] = useState(false);
+  const { resetGame, flippedRobots } = useGameStore();
   const [showInstructions, setShowInstructions] = useState(false);
-
-  useEffect(() => {
-    if (hasExistingGame && !hasSeenResetPrompt) {
-      setShowResetDialog(true);
-    }
-  }, [hasExistingGame, hasSeenResetPrompt]);
+  const [hideEliminated, setHideEliminated] = useState(false);
 
   const flippedCount = Object.values(flippedRobots).filter(Boolean).length;
   const remainingCount = robots.length - flippedCount;
+
+  // Filter robots based on hideEliminated state
+  const visibleRobots = useMemo(() => {
+    if (!hideEliminated) return robots;
+    return robots.filter((robot) => !flippedRobots[robot.name]);
+  }, [hideEliminated, flippedRobots]);
+
+  // Dynamic grid class based on visible robot count
+  const getGridClass = () => {
+    const count = visibleRobots.length;
+    if (count <= 4) {
+      return "grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 max-w-2xl mx-auto";
+    }
+    if (count <= 6) {
+      return "grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 max-w-3xl mx-auto";
+    }
+    if (count <= 9) {
+      return "grid-cols-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 max-w-4xl mx-auto";
+    }
+    if (count <= 12) {
+      return "grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-4 max-w-5xl mx-auto";
+    }
+    // Default for many robots
+    return "grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6";
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -36,9 +55,20 @@ export function GameBoard() {
                 <h1 className="text-2xl font-bold tracking-tight">
                   Robot Guess Who
                 </h1>
-                <p className="text-sm text-muted-foreground">
-                  {remainingCount} of {robots.length} robots remaining
-                </p>
+                <button
+                  onClick={() => setHideEliminated(!hideEliminated)}
+                  className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {hideEliminated ? (
+                    <Eye className="h-3.5 w-3.5" />
+                  ) : (
+                    <EyeOff className="h-3.5 w-3.5" />
+                  )}
+                  <span>
+                    {remainingCount} of {robots.length} robots remaining
+                    {hideEliminated && " (filtered)"}
+                  </span>
+                </button>
               </div>
             </div>
 
@@ -82,6 +112,10 @@ export function GameBoard() {
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">3</span>
+                  <span><strong>Click "remaining"</strong> to hide eliminated robots and enlarge cards</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">4</span>
                   <span>Ask questions to narrow down the mystery robot!</span>
                 </div>
               </CardContent>
@@ -92,8 +126,8 @@ export function GameBoard() {
 
       {/* Main Game Grid */}
       <main className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4">
-          {robots.map((robot) => (
+        <div className={cn("grid gap-3 sm:gap-4", getGridClass())}>
+          {visibleRobots.map((robot) => (
             <RobotCard key={robot.name} robot={robot} />
           ))}
         </div>
@@ -102,22 +136,33 @@ export function GameBoard() {
         <div className="mt-6 flex justify-center">
           <Card className="py-3">
             <CardContent className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-2">
+              <button
+                onClick={() => setHideEliminated(false)}
+                className={cn(
+                  "flex items-center gap-2 transition-opacity",
+                  hideEliminated && "opacity-50 hover:opacity-100"
+                )}
+              >
                 <div className="h-3 w-3 rounded-full bg-destructive" />
                 <span><strong>{flippedCount}</strong> eliminated</span>
-              </div>
+              </button>
               <div className="h-4 w-px bg-border" />
-              <div className="flex items-center gap-2">
+              <button
+                onClick={() => setHideEliminated(true)}
+                className={cn(
+                  "flex items-center gap-2 transition-opacity",
+                  !hideEliminated && flippedCount > 0 && "opacity-70 hover:opacity-100",
+                  hideEliminated && "ring-2 ring-primary ring-offset-2 ring-offset-background rounded-md px-2 py-1 -mx-2 -my-1"
+                )}
+              >
                 <div className="h-3 w-3 rounded-full bg-primary" />
                 <span><strong>{remainingCount}</strong> remaining</span>
-              </div>
+              </button>
             </CardContent>
           </Card>
         </div>
       </main>
 
-      {/* Reset Dialog */}
-      <ResetDialog open={showResetDialog} onOpenChange={setShowResetDialog} />
     </div>
   );
 }
