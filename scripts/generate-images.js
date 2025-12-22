@@ -1,14 +1,21 @@
+import dotenv from 'dotenv';
 import fs from 'fs/promises';
+import OpenAI from 'openai';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import dotenv from 'dotenv';
-import OpenAI from 'openai';
 import { robots } from './robots.js';
 
 // Get the directory of this script and project root
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '..');
+
+// Debug mode: generate only one robot for prompt testing
+// Usage: node scripts/generate-images.js --debug [robotName]
+const args = process.argv.slice(2);
+const debugIndex = args.indexOf('--debug');
+const isDebugMode = debugIndex !== -1;
+const debugRobotName = debugIndex !== -1 && args[debugIndex + 1] ? args[debugIndex + 1] : null;
 
 // Load environment variables from .env file in project root
 dotenv.config({ path: path.join(projectRoot, '.env') });
@@ -109,7 +116,28 @@ async function ensureOutputDir() {
  */
 async function generateRobotImages() {
   await ensureOutputDir();
-  for (const robot of robots) {
+
+  // Determine which robots to process
+  let robotsToProcess = robots;
+  if (isDebugMode) {
+    if (debugRobotName) {
+      const found = robots.find(
+        (r) => r.name.toLowerCase() === debugRobotName.toLowerCase()
+      );
+      if (!found) {
+        console.error(`Robot "${debugRobotName}" not found. Available robots:`);
+        robots.forEach((r) => console.log(`  - ${r.name}`));
+        process.exit(1);
+      }
+      robotsToProcess = [found];
+      console.log(`Debug mode: generating images for "${found.name}" only`);
+    } else {
+      robotsToProcess = [robots[0]];
+      console.log(`Debug mode: generating images for "${robots[0].name}" only (first robot)`);
+    }
+  }
+
+  for (const robot of robotsToProcess) {
     const prompt = buildPrompt(robot);
     console.log(`Generating images for: ${robot.name}…`);
     try {
