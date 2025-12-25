@@ -2,10 +2,10 @@ import {
   Bot, Compass, Hammer, Heart, PartyPopper, PawPrint, Sparkles, Truck, Wrench
 } from "lucide-react";
 import { useState } from "react";
-import { Robot } from "../data/robots";
+import { Robot } from "../../scripts/robots";
 import { useLongPress } from "../hooks/useLongPress";
 import { cn } from "../lib/utils";
-import { useGameStore } from "../store/gameStore";
+import { ImageStyle, useGameStore } from "../store/gameStore";
 import { RobotDetailDialog } from "./RobotDetailDialog";
 import { Badge } from "./ui/badge";
 import { Card } from "./ui/card";
@@ -57,7 +57,7 @@ const getPurposeHexColor = (purpose: string) => {
   return colors[purpose] || "6b7280";
 };
 
-// Generate a placeholder image URL for a robot
+// Generate a placeholder image URL for a robot (fallback)
 export const getPlaceholderImageUrl = (robot: Robot, size: number = 400) => {
   const bgColor = getPurposeHexColor(robot.purpose);
   const textColor = "ffffff";
@@ -65,9 +65,32 @@ export const getPlaceholderImageUrl = (robot: Robot, size: number = 400) => {
   return `https://placehold.co/${size}x${size}/${bgColor}/${textColor}/png?text=${text}`;
 };
 
+// Convert robot name to safe filename format
+const getSafeRobotName = (name: string) => {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_|_$/g, '');
+};
+
+// Get the generated image URL for a robot with a specific style
+export const getRobotImageUrl = (robot: Robot, style: ImageStyle) => {
+  const safeName = getSafeRobotName(robot.name);
+  return `/generated/${safeName}_${style}.png`;
+};
+
+// Get all style image URLs for a robot
+export const getAllStyleImageUrls = (robot: Robot): Record<ImageStyle, string> => {
+  return {
+    blocky: getRobotImageUrl(robot, "blocky"),
+    realistic: getRobotImageUrl(robot, "realistic"),
+  };
+};
+
 export function RobotCard({ robot }: RobotCardProps) {
   const [detailOpen, setDetailOpen] = useState(false);
-  const { flippedRobots, toggleRobot } = useGameStore();
+  const [imageError, setImageError] = useState(false);
+  const { flippedRobots, toggleRobot, imageStyle } = useGameStore();
 
   const isFlipped = flippedRobots[robot.name] ?? false;
 
@@ -76,6 +99,11 @@ export function RobotCard({ robot }: RobotCardProps) {
     onClick: () => toggleRobot(robot.name),
     delay: 400,
   });
+
+  // Use generated image, fallback to placeholder on error
+  const imageUrl = imageError
+    ? getPlaceholderImageUrl(robot, 400)
+    : getRobotImageUrl(robot, imageStyle);
 
   return (
     <>
@@ -96,10 +124,11 @@ export function RobotCard({ robot }: RobotCardProps) {
             {/* Full-bleed background image */}
             <div className="absolute inset-0">
               <img
-                src={getPlaceholderImageUrl(robot, 400)}
+                src={imageUrl}
                 alt={robot.name}
                 className="h-full w-full object-cover"
                 loading="lazy"
+                onError={() => setImageError(true)}
               />
             </div>
             

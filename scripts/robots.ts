@@ -1,14 +1,24 @@
+// Robot type definition
+export interface Robot {
+  name: string;
+  purpose: string;
+  movement: string;
+  environment: string;
+  control: string;
+  sensors: string[];
+}
+
 // List of robot definitions for the Guess‑Who game.
 // Each robot entry defines its name and functional attributes.
 
-export const robots = [
+export const robots: Robot[] = [
   {
     name: "Sidewalk Delivery Bot",
     purpose: "Delivery",
     movement: "Wheels",
     environment: "Outdoors",
     control: "Fully autonomous",
-    sensors: ["Camera"],
+    sensors: ["Camera", "LIDAR", "GPS", "Ultrasonic sensors", "IMU", "Infrared sensors"],
   },
   {
     name: "Warehouse Picker Bot",
@@ -16,7 +26,7 @@ export const robots = [
     movement: "Wheels",
     environment: "Indoors",
     control: "Fully autonomous",
-    sensors: ["Camera", "Touch sensors"],
+    sensors: ["Camera", "Touch sensors", "LIDAR", "Depth sensors", "Force sensors", "Proximity sensors"],
   },
   {
     name: "Drone Dropper",
@@ -24,7 +34,7 @@ export const robots = [
     movement: "Flying",
     environment: "Outdoors",
     control: "Fully autonomous",
-    sensors: ["Camera"],
+    sensors: ["Camera", "GPS", "IMU", "Ultrasonic sensors", "Barometer", "Infrared sensors"],
   },
   {
     name: "Hospital Supply Runner",
@@ -32,7 +42,7 @@ export const robots = [
     movement: "Wheels",
     environment: "Indoors",
     control: "Mixed human and AI control",
-    sensors: ["Camera"],
+    sensors: ["Camera", "LIDAR", "Ultrasonic sensors", "Proximity sensors", "Touch sensors"],
   },
   {
     name: "Grocery Sorting Arm",
@@ -40,7 +50,7 @@ export const robots = [
     movement: "Stationary",
     environment: "Indoors",
     control: "Fully autonomous",
-    sensors: ["Touch sensors"],
+    sensors: ["Touch sensors", "Camera", "Force sensors", "Depth sensors", "Proximity sensors"],
   },
   {
     name: "Floor Sweeper Bot",
@@ -48,7 +58,7 @@ export const robots = [
     movement: "Wheels",
     environment: "Indoors",
     control: "Fully autonomous",
-    sensors: ["Touch sensors"],
+    sensors: ["Touch sensors", "Infrared sensors", "Ultrasonic sensors", "Dirt sensors", "IMU", "Cliff sensors"],
   },
   {
     name: "Window Washer Bot",
@@ -56,7 +66,7 @@ export const robots = [
     movement: "Tracks",
     environment: "Outdoors",
     control: "Mixed human and AI control",
-    sensors: ["Camera"],
+    sensors: ["Camera", "Pressure sensors", "Ultrasonic sensors", "Infrared sensors", "Touch sensors", "Edge sensors"],
   },
   {
     name: "Beach Cleaner Rover",
@@ -64,7 +74,7 @@ export const robots = [
     movement: "Wheels",
     environment: "Outdoors",
     control: "Fully autonomous",
-    sensors: ["Camera"],
+    sensors: ["Camera", "GPS", "Metal detector", "Ultrasonic sensors", "IMU", "Infrared sensors"],
   },
   {
     name: "Pool Scrubber Bot",
@@ -72,15 +82,15 @@ export const robots = [
     movement: "Tracks",
     environment: "Outdoors",
     control: "Fully autonomous",
-    sensors: ["Touch sensors"],
+    sensors: ["Touch sensors", "Pressure sensors", "Ultrasonic sensors", "Infrared sensors", "Water quality sensors"],
   },
   {
-    name: "Medicine Reminder Bot",
+    name: "Home Assistant Bot",
     purpose: "Helping people",
     movement: "Wheels",
     environment: "Indoors",
     control: "Fully autonomous",
-    sensors: ["Sound sensors"],
+    sensors: ["Camera", "Sound sensors", "Infrared sensors", "Touch sensors", "Proximity sensors", "Ultrasonic sensors"],
   },
   {
     name: "Physical Therapy Bot",
@@ -88,7 +98,7 @@ export const robots = [
     movement: "Legs",
     environment: "Indoors",
     control: "Human-controlled",
-    sensors: ["Touch sensors"],
+    sensors: ["Touch sensors", "Force sensors", "Camera", "Pressure sensors", "IMU", "Motion sensors"],
   },
   {
     name: "Guide Robot",
@@ -96,7 +106,7 @@ export const robots = [
     movement: "Wheels",
     environment: "Indoors",
     control: "Mixed human and AI control",
-    sensors: ["Camera"],
+    sensors: ["Camera", "LIDAR", "Sound sensors", "Ultrasonic sensors", "Proximity sensors", "Touch sensors"],
   },
   {
     name: "Pet Care Bot",
@@ -104,7 +114,7 @@ export const robots = [
     movement: "Wheels",
     environment: "Indoors",
     control: "Fully autonomous",
-    sensors: ["Camera"],
+    sensors: ["Camera", "Sound sensors", "Infrared sensors", "Touch sensors", "Proximity sensors", "Motion sensors"],
   },
   {
     name: "Mars Rover Bot",
@@ -112,15 +122,15 @@ export const robots = [
     movement: "Wheels",
     environment: "Outdoors",
     control: "Mixed human and AI control",
-    sensors: ["Camera"],
+    sensors: ["Camera", "LIDAR", "Temperature sensor", "Radiation sensors", "Spectrometer", "IMU", "Ultrasonic sensors"],
   },
   {
     name: "Deep Sea Explorer",
     purpose: "Exploration",
-    movement: "Tracks",
+    movement: "Propellers",
     environment: "Outdoors",
     control: "Fully autonomous",
-    sensors: ["Camera"],
+    sensors: ["Camera", "Pressure sensors", "Sonar", "Temperature sensor", "Depth sensors", "Chemical sensors", "IMU"],
   },
   {
     name: "Volcano Sensor Bot",
@@ -128,7 +138,7 @@ export const robots = [
     movement: "Legs",
     environment: "Outdoors",
     control: "Fully autonomous",
-    sensors: ["Temperature sensor"],
+    sensors: ["Temperature sensor", "Camera", "Gas sensors", "Seismic sensors", "Infrared sensors", "IMU"],
   },
   {
     name: "Forest Mapping Drone",
@@ -136,7 +146,7 @@ export const robots = [
     movement: "Flying",
     environment: "Outdoors",
     control: "Fully autonomous",
-    sensors: ["Camera"],
+    sensors: ["Camera", "LIDAR", "GPS", "IMU", "Infrared sensors", "Barometer", "Humidity sensor"],
   },
   {
     name: "Dance Show Bot",
@@ -144,7 +154,7 @@ export const robots = [
     movement: "Legs",
     environment: "Indoors",
     control: "Human-controlled",
-    sensors: ["Sound sensors"],
+    sensors: ["Sound sensors", "Camera", "IMU", "Force sensors", "Proximity sensors", "Gyroscope"],
   },
   {
     name: "Theme Park Greeter Bot",
@@ -152,15 +162,15 @@ export const robots = [
     movement: "Wheels",
     environment: "Indoors",
     control: "Mixed human and AI control",
-    sensors: ["Camera"],
+    sensors: ["Camera", "Sound sensors", "Touch sensors", "Proximity sensors", "Ultrasonic sensors", "Motion sensors"],
   },
   {
     name: "Robot Pet Toy",
     purpose: "Entertainment",
-    movement: "Wheels",
+    movement: "Legs",
     environment: "Indoors",
     control: "Fully autonomous",
-    sensors: ["Touch sensors"],
+    sensors: ["Touch sensors", "Sound sensors", "Infrared sensors", "Proximity sensors", "Light sensors", "IMU"],
   },
   {
     name: "Brick Laying Bot",
@@ -168,7 +178,7 @@ export const robots = [
     movement: "Tracks",
     environment: "Outdoors",
     control: "Fully autonomous",
-    sensors: ["Touch sensors"],
+    sensors: ["Touch sensors", "Camera", "LIDAR", "Force sensors", "GPS", "Level sensors", "Laser sensors"],
   },
   {
     name: "Road Repair Bot",
@@ -176,7 +186,7 @@ export const robots = [
     movement: "Wheels",
     environment: "Outdoors",
     control: "Mixed human and AI control",
-    sensors: ["Camera"],
+    sensors: ["Camera", "LIDAR", "GPS", "Temperature sensor", "Ultrasonic sensors", "Infrared sensors", "Depth sensors"],
   },
   {
     name: "Space Station Arm",
@@ -184,7 +194,7 @@ export const robots = [
     movement: "Stationary",
     environment: "Outdoors",
     control: "Human-controlled",
-    sensors: ["Touch sensors"],
+    sensors: ["Touch sensors", "Camera", "Force sensors", "Proximity sensors", "Thermal sensors", "Strain gauges"],
   },
   {
     name: "Factory Assembly Bot",
@@ -192,7 +202,7 @@ export const robots = [
     movement: "Stationary",
     environment: "Indoors",
     control: "Fully autonomous",
-    sensors: ["Touch sensors"],
+    sensors: ["Touch sensors", "Camera", "Force sensors", "Proximity sensors", "Laser sensors", "Depth sensors"],
   },
 ];
 

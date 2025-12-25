@@ -1,16 +1,17 @@
-import { Bot, Eye, EyeOff, HelpCircle, RotateCcw, X } from "lucide-react";
+import { Bot, Eye, EyeOff, HelpCircle, Palette, RotateCcw, X } from "lucide-react";
 import { useMemo, useState } from "react";
-import { robots } from "../data/robots";
+import { robots } from "../../scripts/robots";
 import { cn } from "../lib/utils";
-import { useGameStore } from "../store/gameStore";
+import { IMAGE_STYLES, IMAGE_STYLE_LABELS, useGameStore } from "../store/gameStore";
 import { RobotCard } from "./RobotCard";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 
 export function GameBoard() {
-  const { resetGame, flippedRobots } = useGameStore();
+  const { resetGame, flippedRobots, imageStyle, setImageStyle } = useGameStore();
   const [showInstructions, setShowInstructions] = useState(false);
   const [hideEliminated, setHideEliminated] = useState(false);
+  const [showStylePicker, setShowStylePicker] = useState(false);
 
   const flippedCount = Object.values(flippedRobots).filter(Boolean).length;
   const remainingCount = robots.length - flippedCount;
@@ -77,6 +78,18 @@ export function GameBoard() {
               <Button
                 variant="ghost"
                 size="icon"
+                onClick={() => setShowStylePicker(!showStylePicker)}
+                className={cn(showStylePicker && "bg-accent")}
+              >
+                {showStylePicker ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <Palette className="h-5 w-5" />
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setShowInstructions(!showInstructions)}
               >
                 {showInstructions ? (
@@ -91,6 +104,38 @@ export function GameBoard() {
               </Button>
             </div>
           </div>
+
+          {/* Style Picker Panel */}
+          {showStylePicker && (
+            <Card className="mt-4">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2">
+                  <Palette className="h-5 w-5" />
+                  Art Style
+                </CardTitle>
+                <CardDescription>
+                  Choose how the robots look
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex gap-2 flex-wrap">
+                  {IMAGE_STYLES.map((style) => (
+                    <Button
+                      key={style}
+                      variant={imageStyle === style ? "default" : "outline"}
+                      onClick={() => {
+                        setImageStyle(style);
+                        setShowStylePicker(false);
+                      }}
+                      className="flex-1 min-w-[100px]"
+                    >
+                      {IMAGE_STYLE_LABELS[style]}
+                    </Button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Instructions Panel */}
           {showInstructions && (

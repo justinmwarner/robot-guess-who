@@ -1,14 +1,18 @@
 import {
-  Bot, Compass, Cpu, Hammer, Heart, MapPin, Navigation, PartyPopper, PawPrint, Radio, Sparkles, Truck, Wrench
+  Bot, ChevronLeft, ChevronRight, Compass, Cpu, Hammer, Heart, MapPin, Navigation, PartyPopper, PawPrint, Radio, Sparkles, Truck, Wrench
 } from "lucide-react";
-import { Robot } from "../data/robots";
-import { getPlaceholderImageUrl } from "./RobotCard";
+import { useState } from "react";
+import { Robot } from "../../scripts/robots";
+import { cn } from "../lib/utils";
+import { ImageStyle, IMAGE_STYLES, IMAGE_STYLE_LABELS } from "../store/gameStore";
+import { getAllStyleImageUrls, getPlaceholderImageUrl } from "./RobotCard";
 import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import {
   Dialog,
   DialogContent,
-  DialogTitle,
+  DialogTitle
 } from "./ui/dialog";
 
 interface RobotDetailDialogProps {
@@ -36,7 +40,32 @@ export function RobotDetailDialog({
   open,
   onOpenChange,
 }: RobotDetailDialogProps) {
+  const [currentStyleIndex, setCurrentStyleIndex] = useState(0);
+  const [imageErrors, setImageErrors] = useState<Record<ImageStyle, boolean>>({
+    blocky: false,
+    realistic: false,
+  });
+
   if (!robot) return null;
+
+  const currentStyle = IMAGE_STYLES[currentStyleIndex];
+  const imageUrls = getAllStyleImageUrls(robot);
+
+  const goToPrevious = () => {
+    setCurrentStyleIndex((prev) => (prev - 1 + IMAGE_STYLES.length) % IMAGE_STYLES.length);
+  };
+
+  const goToNext = () => {
+    setCurrentStyleIndex((prev) => (prev + 1) % IMAGE_STYLES.length);
+  };
+
+  const handleImageError = (style: ImageStyle) => {
+    setImageErrors((prev) => ({ ...prev, [style]: true }));
+  };
+
+  const getImageUrl = (style: ImageStyle) => {
+    return imageErrors[style] ? getPlaceholderImageUrl(robot, 800) : imageUrls[style];
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -44,15 +73,61 @@ export function RobotDetailDialog({
         {/* Visually hidden title for accessibility */}
         <DialogTitle className="sr-only">{robot.name} Details</DialogTitle>
         
-        {/* Large hero image */}
-        <div className="relative w-full aspect-[4/3] bg-muted">
+        {/* Image carousel */}
+        <div className="relative w-full aspect-[4/3] bg-muted group">
+          {/* Current image */}
           <img
-            src={getPlaceholderImageUrl(robot, 800)}
-            alt={robot.name}
-            className="w-full h-full object-cover"
+            src={getImageUrl(currentStyle)}
+            alt={`${robot.name} - ${IMAGE_STYLE_LABELS[currentStyle]}`}
+            className="w-full h-full object-cover transition-opacity duration-300"
+            onError={() => handleImageError(currentStyle)}
           />
+
+          {/* Navigation arrows */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/30 hover:bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={goToPrevious}
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/30 hover:bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={goToNext}
+          >
+            <ChevronRight className="h-6 w-6" />
+          </Button>
+
+          {/* Style indicator dots */}
+          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-2">
+            {IMAGE_STYLES.map((style, index) => (
+              <button
+                key={style}
+                className={cn(
+                  "w-2.5 h-2.5 rounded-full transition-all",
+                  index === currentStyleIndex
+                    ? "bg-white w-6"
+                    : "bg-white/50 hover:bg-white/70"
+                )}
+                onClick={() => setCurrentStyleIndex(index)}
+                aria-label={`View ${IMAGE_STYLE_LABELS[style]} style`}
+              />
+            ))}
+          </div>
+
+          {/* Style label badge */}
+          <Badge 
+            className="absolute top-4 right-4 bg-black/50 hover:bg-black/50 text-white border-0"
+          >
+            {IMAGE_STYLE_LABELS[currentStyle]}
+          </Badge>
+
           {/* Gradient overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
+          
           {/* Title overlay on image */}
           <div className="absolute bottom-0 left-0 right-0 p-6">
             <div className="flex items-center gap-3">
