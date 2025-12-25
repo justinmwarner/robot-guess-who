@@ -72,7 +72,7 @@ const openai = new OpenAI({ apiKey });
 
 // Directory in which generated images will be stored. The script will create
 // this folder if it doesn't already exist.
-const outputDir = path.join(projectRoot, 'generated');
+const outputDir = path.join(projectRoot, 'public', 'generated');
 
 /**
  * Build a prompt for the OpenAI image generation API. The prompt uses the
@@ -397,7 +397,7 @@ async function generateRobotImages() {
       }
     }
   }
-  console.log('Image generation complete. Files are stored in the generated/ folder.');
+  console.log('Image generation complete. Files are stored in the public/generated/ folder.');
 }
 
 // Run the script. Catch unhandled promise rejections to avoid silent

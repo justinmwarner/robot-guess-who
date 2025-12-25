@@ -76,7 +76,7 @@ const getSafeRobotName = (name: string) => {
 // Get the generated image URL for a robot with a specific style
 export const getRobotImageUrl = (robot: Robot, style: ImageStyle) => {
   const safeName = getSafeRobotName(robot.name);
-  return `/generated/${safeName}_${style}.png`;
+  return `${import.meta.env.BASE_URL}generated/${safeName}_${style}.png`;
 };
 
 // Get all style image URLs for a robot
