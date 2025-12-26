@@ -47,6 +47,10 @@ export const useGameStore = create<GameState>()(
     }),
     {
       name: "robot-guess-who-storage",
+      partialize: (state: GameState) => ({
+        flippedRobots: state.flippedRobots,
+        imageStyle: state.imageStyle,
+      }),
     }
   )
 );

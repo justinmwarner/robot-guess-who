@@ -1,7 +1,7 @@
 import {
   Bot, ChevronLeft, ChevronRight, Compass, Cpu, Hammer, Heart, MapPin, Navigation, PartyPopper, PawPrint, Radio, Sparkles, Truck, Wrench
 } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Robot } from "../../scripts/robots";
 import { cn } from "../lib/utils";
 import { ImageStyle, IMAGE_STYLES, IMAGE_STYLE_LABELS } from "../store/gameStore";
@@ -45,19 +45,50 @@ export function RobotDetailDialog({
     blocky: false,
     realistic: false,
   });
+  
+  // Touch/swipe handling refs (must be before early return)
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+  const minSwipeDistance = 50;
+
+  const goToPrevious = useCallback(() => {
+    setCurrentStyleIndex((prev) => (prev - 1 + IMAGE_STYLES.length) % IMAGE_STYLES.length);
+  }, []);
+
+  const goToNext = useCallback(() => {
+    setCurrentStyleIndex((prev) => (prev + 1) % IMAGE_STYLES.length);
+  }, []);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchEndX.current = null;
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (touchStartX.current === null || touchEndX.current === null) return;
+    
+    const distance = touchStartX.current - touchEndX.current;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      goToNext();
+    } else if (isRightSwipe) {
+      goToPrevious();
+    }
+    
+    touchStartX.current = null;
+    touchEndX.current = null;
+  }, [goToNext, goToPrevious]);
 
   if (!robot) return null;
 
   const currentStyle = IMAGE_STYLES[currentStyleIndex];
   const imageUrls = getAllStyleImageUrls(robot);
-
-  const goToPrevious = () => {
-    setCurrentStyleIndex((prev) => (prev - 1 + IMAGE_STYLES.length) % IMAGE_STYLES.length);
-  };
-
-  const goToNext = () => {
-    setCurrentStyleIndex((prev) => (prev + 1) % IMAGE_STYLES.length);
-  };
 
   const handleImageError = (style: ImageStyle) => {
     setImageErrors((prev) => ({ ...prev, [style]: true }));
@@ -74,7 +105,12 @@ export function RobotDetailDialog({
         <DialogTitle className="sr-only">{robot.name} Details</DialogTitle>
         
         {/* Image carousel */}
-        <div className="relative w-full aspect-[4/3] bg-muted group">
+        <div 
+          className="relative w-full aspect-[4/3] bg-muted group touch-pan-y"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           {/* Current image */}
           <img
             src={getImageUrl(currentStyle)}
@@ -83,11 +119,11 @@ export function RobotDetailDialog({
             onError={() => handleImageError(currentStyle)}
           />
 
-          {/* Navigation arrows */}
+          {/* Navigation arrows - visible on mobile, hover reveal on desktop */}
           <Button
             variant="ghost"
             size="icon"
-            className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/30 hover:bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/30 hover:bg-black/50 text-white opacity-70 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
             onClick={goToPrevious}
           >
             <ChevronLeft className="h-6 w-6" />
@@ -95,7 +131,7 @@ export function RobotDetailDialog({
           <Button
             variant="ghost"
             size="icon"
-            className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/30 hover:bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-black/30 hover:bg-black/50 text-white opacity-70 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
             onClick={goToNext}
           >
             <ChevronRight className="h-6 w-6" />
