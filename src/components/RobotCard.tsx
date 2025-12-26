@@ -1,6 +1,4 @@
-import {
-  Bot, Compass, Hammer, Heart, PartyPopper, PawPrint, Sparkles, Truck, Wrench
-} from "lucide-react";
+import { Bot } from "lucide-react";
 import { useState } from "react";
 import { Robot } from "../../scripts/robots";
 import { useLongPress } from "../hooks/useLongPress";
@@ -14,33 +12,6 @@ interface RobotCardProps {
   robot: Robot;
 }
 
-const getPurposeIcon = (purpose: string) => {
-  const icons: Record<string, React.ReactNode> = {
-    Delivery: <Truck className="h-6 w-6" />,
-    Cleaning: <Sparkles className="h-6 w-6" />,
-    "Helping people": <Heart className="h-6 w-6" />,
-    "Helping animals": <PawPrint className="h-6 w-6" />,
-    Exploration: <Compass className="h-6 w-6" />,
-    Entertainment: <PartyPopper className="h-6 w-6" />,
-    Building: <Hammer className="h-6 w-6" />,
-    Fixing: <Wrench className="h-6 w-6" />,
-  };
-  return icons[purpose] || <Bot className="h-6 w-6" />;
-};
-
-const getPurposeColor = (purpose: string) => {
-  const colors: Record<string, string> = {
-    Delivery: "bg-amber-500",
-    Cleaning: "bg-cyan-500",
-    "Helping people": "bg-rose-500",
-    "Helping animals": "bg-emerald-500",
-    Exploration: "bg-violet-500",
-    Entertainment: "bg-fuchsia-500",
-    Building: "bg-slate-500",
-    Fixing: "bg-yellow-500",
-  };
-  return colors[purpose] || "bg-gray-500";
-};
 
 // Map purpose to hex colors for placeholder images
 const getPurposeHexColor = (purpose: string) => {
@@ -134,27 +105,38 @@ export function RobotCard({ robot }: RobotCardProps) {
             
             {/* Glass overlay content */}
             <div className="relative flex flex-1 flex-col">
-              {/* Top glass panel with icon and name */}
-              <div className="mt-auto backdrop-blur-md bg-white/70 dark:bg-black/60 p-3 border-t border-white/20">
-                <div className="flex items-center gap-2">
-                  {/* Icon */}
-                  <div className={cn(
-                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white shadow-lg",
-                    getPurposeColor(robot.purpose)
-                  )}>
-                    {getPurposeIcon(robot.purpose)}
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    {/* Name */}
-                    <h3 className="text-sm font-bold leading-tight text-foreground truncate">
-                      {robot.name}
-                    </h3>
-                    {/* Purpose badge inline */}
-                    <Badge variant="secondary" className="mt-1 text-[10px] bg-white/50 dark:bg-white/20">
-                      {robot.purpose}
+              {/* Bottom glass panel with name and attributes */}
+              <div className="mt-auto backdrop-blur-md bg-white/70 dark:bg-black/60 p-2 border-t border-white/20">
+                {/* Name */}
+                <h3 className="text-sm font-bold leading-tight text-foreground truncate mb-1">
+                  {robot.name}
+                </h3>
+                {/* Attributes grid */}
+                <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 text-[10px] text-foreground/80">
+                  <span className="truncate"><span className="font-semibold">Purpose:</span> {robot.purpose}</span>
+                  <span className="truncate"><span className="font-semibold">Move:</span> {robot.movement}</span>
+                  <span className="truncate"><span className="font-semibold">Env:</span> {robot.environment}</span>
+                  <span className="truncate"><span className="font-semibold">Control:</span> {robot.control.replace("Fully autonomous", "Auto").replace("Human-controlled", "Human").replace("Mixed human and AI control", "Mixed")}</span>
+                </div>
+                {/* Sensors */}
+                <div className="mt-1 flex flex-wrap gap-1">
+                  {robot.sensors.slice(0, 4).map((sensor) => (
+                    <Badge 
+                      key={sensor} 
+                      variant="secondary" 
+                      className="text-[8px] px-1 py-0 h-4 bg-white/50 dark:bg-white/20"
+                    >
+                      {sensor.replace(" sensors", "").replace(" sensor", "")}
                     </Badge>
-                  </div>
+                  ))}
+                  {robot.sensors.length > 4 && (
+                    <Badge 
+                      variant="secondary" 
+                      className="text-[8px] px-1 py-0 h-4 bg-white/50 dark:bg-white/20"
+                    >
+                      +{robot.sensors.length - 4}
+                    </Badge>
+                  )}
                 </div>
               </div>
             </div>

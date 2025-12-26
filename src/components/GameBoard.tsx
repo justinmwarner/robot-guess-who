@@ -22,23 +22,23 @@ export function GameBoard() {
     return robots.filter((robot) => !flippedRobots[robot.name]);
   }, [hideEliminated, flippedRobots]);
 
-  // Dynamic grid class based on visible robot count
+  // Dynamic grid class based on visible robot count - fills available screen space
   const getGridClass = () => {
     const count = visibleRobots.length;
     if (count <= 4) {
-      return "grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 max-w-2xl mx-auto";
+      return "grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4";
     }
     if (count <= 6) {
-      return "grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 max-w-3xl mx-auto";
+      return "grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-6";
     }
-    if (count <= 9) {
-      return "grid-cols-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 max-w-4xl mx-auto";
+    if (count <= 8) {
+      return "grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-8";
     }
     if (count <= 12) {
-      return "grid-cols-3 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-4 max-w-5xl mx-auto";
+      return "grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-6 xl:grid-cols-12";
     }
-    // Default for many robots
-    return "grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6";
+    // Default for many robots - scales up to fill larger screens
+    return "grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10";
   };
 
   return (
