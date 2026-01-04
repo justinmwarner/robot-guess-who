@@ -1,5 +1,5 @@
 import { Bot } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Robot } from "../../scripts/robots";
 import { useLongPress } from "../hooks/useLongPress";
 import { cn } from "../lib/utils";
@@ -58,10 +58,72 @@ export const getAllStyleImageUrls = (robot: Robot): Record<ImageStyle, string> =
   };
 };
 
+// Estimates badge width based on text content
+function estimateBadgeWidth(text: string): number {
+  // Each character is roughly 5px at 8px font size, plus padding (8px) and gap (4px)
+  const charWidth = 5;
+  const padding = 8;
+  const gap = 4;
+  return text.length * charWidth + padding + gap;
+}
+
 export function RobotCard({ robot }: RobotCardProps) {
   const [detailOpen, setDetailOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [visibleSensorCount, setVisibleSensorCount] = useState(robot.sensors.length);
+  const sensorsContainerRef = useRef<HTMLDivElement>(null);
   const { flippedRobots, toggleRobot, imageStyle } = useGameStore();
+
+  // Calculate how many sensors fit in the container
+  const calculateVisibleSensors = useCallback(function calculateVisibleSensors() {
+    const container = sensorsContainerRef.current;
+    if (!container) return;
+
+    const containerWidth = container.offsetWidth;
+    const overflowBadgeWidth = 28; // "+N" badge approximate width
+    
+    // Calculate sensor label widths (removing " sensor(s)" suffix)
+    const sensorLabels = robot.sensors.map((s) => s.replace(" sensors", "").replace(" sensor", ""));
+    
+    let usedWidth = 0;
+    let count = 0;
+    
+    for (let i = 0; i < sensorLabels.length; i++) {
+      const badgeWidth = estimateBadgeWidth(sensorLabels[i]);
+      const remainingAfterThis = containerWidth - usedWidth - badgeWidth;
+      const hasMoreSensors = i < sensorLabels.length - 1;
+      
+      // If this is not the last sensor, ensure there's room for overflow badge
+      if (hasMoreSensors && remainingAfterThis < overflowBadgeWidth) {
+        break;
+      }
+      
+      // If adding this badge would exceed container width, stop
+      if (usedWidth + badgeWidth > containerWidth) {
+        break;
+      }
+      
+      usedWidth += badgeWidth;
+      count++;
+    }
+    
+    setVisibleSensorCount(Math.max(1, count)); // Always show at least 1
+  }, [robot.sensors]);
+
+  // Observe container size changes
+  useEffect(function observeSensorContainer() {
+    const container = sensorsContainerRef.current;
+    if (!container) return;
+
+    calculateVisibleSensors();
+
+    const resizeObserver = new ResizeObserver(calculateVisibleSensors);
+    resizeObserver.observe(container);
+
+    return function cleanup() {
+      resizeObserver.disconnect();
+    };
+  }, [calculateVisibleSensors]);
 
   const isFlipped = flippedRobots[robot.name] ?? false;
 
@@ -119,8 +181,8 @@ export function RobotCard({ robot }: RobotCardProps) {
                   <span className="truncate"><span className="font-semibold">Control:</span> {robot.control.replace("Fully autonomous", "Auto").replace("Human-controlled", "Human").replace("Mixed human and AI control", "Mixed")}</span>
                 </div>
                 {/* Sensors */}
-                <div className="mt-1 flex flex-wrap gap-1">
-                  {robot.sensors.slice(0, 4).map((sensor) => (
+                <div ref={sensorsContainerRef} className="mt-1 flex flex-wrap gap-1">
+                  {robot.sensors.slice(0, visibleSensorCount).map((sensor) => (
                     <Badge 
                       key={sensor} 
                       variant="secondary" 
@@ -129,12 +191,12 @@ export function RobotCard({ robot }: RobotCardProps) {
                       {sensor.replace(" sensors", "").replace(" sensor", "")}
                     </Badge>
                   ))}
-                  {robot.sensors.length > 4 && (
+                  {robot.sensors.length > visibleSensorCount && (
                     <Badge 
                       variant="secondary" 
                       className="text-[8px] px-1 py-0 h-4 bg-white/50 dark:bg-white/20"
                     >
-                      +{robot.sensors.length - 4}
+                      +{robot.sensors.length - visibleSensorCount}
                     </Badge>
                   )}
                 </div>
