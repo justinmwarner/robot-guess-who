@@ -1,14 +1,14 @@
-import { Bot, Eye, EyeOff, HelpCircle, Palette, RotateCcw, X } from "lucide-react";
+import { Bot, Eye, EyeOff, Grid3x3 as Grid3x3Icon, HelpCircle, Palette, RotateCcw, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { robots } from "../../scripts/robots";
 import { cn } from "../lib/utils";
-import { IMAGE_STYLES, IMAGE_STYLE_LABELS, useGameStore } from "../store/gameStore";
+import { GRID_COLUMN_LABELS, GRID_COLUMN_OPTIONS, IMAGE_STYLES, IMAGE_STYLE_LABELS, useGameStore } from "../store/gameStore";
 import { RobotCard } from "./RobotCard";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 
 export function GameBoard() {
-  const { resetGame, flippedRobots, imageStyle, setImageStyle } = useGameStore();
+  const { resetGame, flippedRobots, imageStyle, setImageStyle, gridColumns, setGridColumns } = useGameStore();
   const [showInstructions, setShowInstructions] = useState(false);
   const [hideEliminated, setHideEliminated] = useState(false);
   const [showStylePicker, setShowStylePicker] = useState(false);
@@ -22,8 +22,24 @@ export function GameBoard() {
     return robots.filter((robot) => !flippedRobots[robot.name]);
   }, [hideEliminated, flippedRobots]);
 
-  // Dynamic grid class based on visible robot count - fills available screen space
-  const getGridClass = () => {
+  // Grid class mappings for fixed column counts (Tailwind needs complete class names)
+  const FIXED_GRID_CLASSES: Record<number, string> = {
+    3: "grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3",
+    4: "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4",
+    5: "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5",
+    6: "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6",
+    8: "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8",
+    10: "grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-8 xl:grid-cols-10",
+  };
+
+  // Dynamic grid class based on visible robot count and user preference
+  function getGridClass() {
+    // If user has set a specific column count, use that
+    if (gridColumns !== "auto") {
+      return FIXED_GRID_CLASSES[gridColumns as number];
+    }
+
+    // Auto mode - based on visible robot count to fill available screen space
     const count = visibleRobots.length;
     if (count <= 4) {
       return "grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4";
@@ -39,7 +55,7 @@ export function GameBoard() {
     }
     // Default for many robots - scales up to fill larger screens
     return "grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10";
-  };
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -111,27 +127,55 @@ export function GameBoard() {
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center gap-2">
                   <Palette className="h-5 w-5" />
-                  Art Style
+                  Display Settings
                 </CardTitle>
                 <CardDescription>
-                  Choose how the robots look
+                  Customize how the game looks
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="flex gap-2 flex-wrap">
-                  {IMAGE_STYLES.map((style) => (
-                    <Button
-                      key={style}
-                      variant={imageStyle === style ? "default" : "outline"}
-                      onClick={() => {
-                        setImageStyle(style);
-                        setShowStylePicker(false);
-                      }}
-                      className="flex-1 min-w-[100px]"
-                    >
-                      {IMAGE_STYLE_LABELS[style]}
-                    </Button>
-                  ))}
+              <CardContent className="space-y-4">
+                {/* Art Style */}
+                <div>
+                  <div className="text-sm font-medium mb-2">Art Style</div>
+                  <div className="flex gap-2 flex-wrap">
+                    {IMAGE_STYLES.map(function renderStyleButton(style) {
+                      return (
+                        <Button
+                          key={style}
+                          variant={imageStyle === style ? "default" : "outline"}
+                          onClick={function handleStyleClick() {
+                            setImageStyle(style);
+                          }}
+                          className="flex-1 min-w-[100px]"
+                        >
+                          {IMAGE_STYLE_LABELS[style]}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+                {/* Grid Size */}
+                <div>
+                  <div className="text-sm font-medium mb-2 flex items-center gap-2">
+                    <Grid3x3Icon className="h-4 w-4" />
+                    Grid Columns
+                  </div>
+                  <div className="flex gap-2 flex-wrap">
+                    {GRID_COLUMN_OPTIONS.map(function renderColumnButton(cols) {
+                      return (
+                        <Button
+                          key={cols}
+                          variant={gridColumns === cols ? "default" : "outline"}
+                          onClick={function handleColumnClick() {
+                            setGridColumns(cols);
+                          }}
+                          size="sm"
+                        >
+                          {GRID_COLUMN_LABELS[cols]}
+                        </Button>
+                      );
+                    })}
+                  </div>
                 </div>
               </CardContent>
             </Card>
