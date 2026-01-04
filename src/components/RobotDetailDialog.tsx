@@ -1,5 +1,5 @@
 import {
-  Bot, ChevronLeft, ChevronRight, Compass, Cpu, Hammer, Heart, MapPin, Navigation, PartyPopper, PawPrint, Radio, Sparkles, Truck, Wrench
+  Bot, ChevronLeft, ChevronRight, Compass, Cpu, Hammer, Heart, MapPin, Navigation, PartyPopper, PawPrint, Radio, Sparkles, Star, Truck, Wrench
 } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { Robot } from "../../scripts/robots";
@@ -19,6 +19,8 @@ interface RobotDetailDialogProps {
   robot: Robot | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** When true, shows special styling to indicate this is the user's selected robot */
+  isMyRobot?: boolean;
 }
 
 const getPurposeIcon = (purpose: string) => {
@@ -39,6 +41,7 @@ export function RobotDetailDialog({
   robot,
   open,
   onOpenChange,
+  isMyRobot = false,
 }: RobotDetailDialogProps) {
   const [currentStyleIndex, setCurrentStyleIndex] = useState(0);
   const [imageErrors, setImageErrors] = useState<Record<ImageStyle, boolean>>({
@@ -167,14 +170,31 @@ export function RobotDetailDialog({
           {/* Right: Scrollable properties panel */}
           <div className="w-full sm:w-1/2 overflow-y-auto max-h-[50vh] sm:max-h-[500px]">
             {/* Header section */}
-            <div className="p-6 pb-4 border-b sticky top-0 bg-background z-10">
+            <div className={cn(
+              "p-6 pb-4 border-b sticky top-0 z-10",
+              isMyRobot ? "bg-primary/5" : "bg-background"
+            )}>
+              {/* My Robot indicator banner */}
+              {isMyRobot && (
+                <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-lg bg-primary/10 border border-primary/20">
+                  <Star className="h-4 w-4 text-primary fill-primary" />
+                  <span className="text-sm font-medium text-primary">Your Secret Robot</span>
+                </div>
+              )}
               <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
+                <div className={cn(
+                  "flex h-12 w-12 items-center justify-center rounded-xl border",
+                  isMyRobot 
+                    ? "bg-primary text-primary-foreground border-primary" 
+                    : "bg-primary/10 text-primary border-primary/20"
+                )}>
                   {getPurposeIcon(robot.purpose)}
                 </div>
                 <div>
                   <h2 className="text-xl font-bold">{robot.name}</h2>
-                  <p className="text-muted-foreground text-sm">Robot Specifications</p>
+                  <p className="text-muted-foreground text-sm">
+                    {isMyRobot ? "Your robot for others to guess" : "Robot Specifications"}
+                  </p>
                 </div>
               </div>
             </div>

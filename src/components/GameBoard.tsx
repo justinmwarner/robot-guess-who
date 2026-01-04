@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { robots } from "../../scripts/robots";
 import { cn } from "../lib/utils";
 import { GRID_COLUMN_LABELS, GRID_COLUMN_OPTIONS, IMAGE_STYLES, IMAGE_STYLE_LABELS, useGameStore } from "../store/gameStore";
+import { MyRobotButton } from "./MyRobotButton";
 import { RobotCard } from "./RobotCard";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
@@ -98,6 +99,7 @@ export function GameBoard() {
 
             {/* Action Buttons */}
             <div className="flex items-center gap-2">
+              <MyRobotButton />
               <Button
                 variant="ghost"
                 size="icon"

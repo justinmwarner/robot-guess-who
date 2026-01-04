@@ -33,11 +33,14 @@ interface GameState {
   imageStyle: ImageStyle;
   // Grid column setting
   gridColumns: GridColumns;
+  // User's selected robot (their robot for others to guess)
+  myRobotName: string | null;
 
   // Actions
   toggleRobot: (robotName: string) => void;
   setImageStyle: (style: ImageStyle) => void;
   setGridColumns: (columns: GridColumns) => void;
+  setMyRobot: (robotName: string | null) => void;
   resetGame: () => void;
 }
 
@@ -47,6 +50,7 @@ export const useGameStore = create<GameState>()(
       flippedRobots: {},
       imageStyle: "realistic",
       gridColumns: "auto" as GridColumns,
+      myRobotName: null,
 
       toggleRobot: (robotName: string) =>
         set((state) => ({
@@ -62,9 +66,13 @@ export const useGameStore = create<GameState>()(
       setGridColumns: (columns: GridColumns) =>
         set({ gridColumns: columns }),
 
+      setMyRobot: (robotName: string | null) =>
+        set({ myRobotName: robotName }),
+
       resetGame: () =>
         set({
           flippedRobots: {},
+          myRobotName: null,
         }),
     }),
     {
@@ -73,6 +81,7 @@ export const useGameStore = create<GameState>()(
         flippedRobots: state.flippedRobots,
         imageStyle: state.imageStyle,
         gridColumns: state.gridColumns,
+        myRobotName: state.myRobotName,
       }),
     }
   )
