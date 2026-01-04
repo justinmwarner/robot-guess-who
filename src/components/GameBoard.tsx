@@ -16,10 +16,17 @@ export function GameBoard() {
   const flippedCount = Object.values(flippedRobots).filter(Boolean).length;
   const remainingCount = robots.length - flippedCount;
 
-  // Filter robots based on hideEliminated state
+  // Filter robots based on hideEliminated state, sort eliminated to end
   const visibleRobots = useMemo(() => {
-    if (!hideEliminated) return robots;
-    return robots.filter((robot) => !flippedRobots[robot.name]);
+    if (hideEliminated) {
+      return robots.filter((robot) => !flippedRobots[robot.name]);
+    }
+    // Sort eliminated robots to the end of the grid
+    return [...robots].sort((a, b) => {
+      const aFlipped = flippedRobots[a.name] ? 1 : 0;
+      const bFlipped = flippedRobots[b.name] ? 1 : 0;
+      return aFlipped - bFlipped;
+    });
   }, [hideEliminated, flippedRobots]);
 
   // Grid class mappings for fixed column counts (Tailwind needs complete class names)
