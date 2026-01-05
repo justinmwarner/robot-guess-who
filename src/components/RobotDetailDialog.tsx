@@ -1,5 +1,5 @@
 import {
-  Bot, ChevronLeft, ChevronRight, Compass, Cpu, Hammer, Heart, MapPin, Navigation, PartyPopper, PawPrint, Radio, Sparkles, Star, Truck, Wrench
+  Bot, ChevronLeft, ChevronRight, Compass, Cpu, Hammer, Heart, MapPin, Navigation, PartyPopper, PawPrint, Radio, Sparkles, Star, Truck, Wrench, X
 } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { Robot } from "../../scripts/robots";
@@ -103,15 +103,24 @@ export function RobotDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl p-0 overflow-hidden max-h-[90vh]">
+      <DialogContent className="sm:max-w-4xl p-0 overflow-hidden max-h-[90vh]" showCloseButton={false}>
         {/* Visually hidden title for accessibility */}
         <DialogTitle className="sr-only">{robot.name} Details</DialogTitle>
+        
+        {/* Custom close button - larger touch target and more visible */}
+        <button
+          onClick={() => onOpenChange(false)}
+          className="absolute top-3 right-3 z-20 flex items-center justify-center h-10 w-10 rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors shadow-lg"
+          aria-label="Close dialog"
+        >
+          <X className="h-5 w-5" />
+        </button>
         
         {/* Left/Right layout container */}
         <div className="flex flex-col sm:flex-row h-full">
           {/* Left: Image carousel */}
           <div 
-            className="relative w-full sm:w-1/2 aspect-square sm:aspect-auto sm:min-h-[500px] bg-muted group touch-pan-y flex-shrink-0"
+            className="relative w-full sm:w-1/2 aspect-[4/3] sm:aspect-auto sm:min-h-[500px] bg-muted group touch-pan-y flex-shrink-0"
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
@@ -168,7 +177,7 @@ export function RobotDetailDialog({
           </div>
 
           {/* Right: Scrollable properties panel */}
-          <div className="w-full sm:w-1/2 overflow-y-auto max-h-[50vh] sm:max-h-[500px]">
+          <div className="w-full sm:w-1/2 overflow-y-auto max-h-[60vh] sm:max-h-[500px] pb-4">
             {/* Header section */}
             <div className={cn(
               "p-6 pb-4 border-b sticky top-0 z-10",
